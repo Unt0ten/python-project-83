@@ -9,7 +9,6 @@ from flask import (
     flash,
     get_flashed_messages,
     redirect,
-    session,
     make_response
     )
 import os
