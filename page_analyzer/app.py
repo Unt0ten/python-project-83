@@ -93,7 +93,6 @@ def get_url_from_id(id):
 def check_url(id):
     url, _ = repo.get_data_from_id(id)
     info = get_seo(url)
-    print(info)
     if not info:
         flash('Произошла ошибка', 'warning')
         return redirect(url_for('get_url_from_id',
