@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -26,48 +27,11 @@
 
   <main class="flex-grow-1">
     <div class="container-lg mt-3">
-      <h1>Сайты</h1>
+      <h1>Страница не найдена</h1>
 
     
-<div class="table-responsive">
-  <table class="table table-bordered table-hover text-nowrap" data-test="urls">
-    <thead>
-    <tr>
-      <th>ID</th>
-      <th>Имя</th>
-      <th>Последняя проверка</th>
-        <th>Код ответа</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% if data %}
-    {% for row in data %}
-      <tr>
-        
-        <td>{{ row.id }}</td>
-        
-        <td>
-            <a href= "{{ url_for('get_url_from_id', id=row.id) }}">{{ row.name }}</a>
-        </td>
-        
-        {% if row.created_at %}
-        <td>{{ row.created_at }}</td>
-        {% else %}
-        <td></td>
-        {% endif %}
-        
-        {% if row.status %}
-        <td>{{ row.status }}</td>
-        {% else %}
-        <td></td>
-        {% endif %}
-        
-      </tr>
-    {% endfor %}
-    {% endif %}
-    </tbody>
-  </table>
-</div>
+  <p>Здесь нет того, что вы ищете</p>
+  <p><a href="/">Вернуться на главную</a></p>
 
     </div>
   </main>
