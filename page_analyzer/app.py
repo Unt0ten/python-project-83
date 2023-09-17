@@ -94,7 +94,7 @@ def check_url(id):
     url, _ = repo.get_data_from_id(id)
     info = get_seo(url)
     if not info:
-        flash('Произошла ошибка', 'warning')
+        flash('Произошла ошибка при проверке', 'warning')
         return redirect(url_for('get_url_from_id',
                             id=id,
                             ))
