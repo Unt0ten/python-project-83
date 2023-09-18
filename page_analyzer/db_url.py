@@ -6,9 +6,15 @@ from page_analyzer.tools import make_dict_urls, make_dict_checks
 DATABASE_URL = os.getenv('DATABASE_URL')
 load_dotenv()
 
+keepalive_kwargs = {
+    "keepalives": 1,
+    "keepalives_idle": 30,
+    "keepalives_interval": 5,
+    "keepalives_count": 5,
+}
 
 def get_pool():
-    connection = psycopg2.connect(DATABASE_URL)
+    connection = psycopg2.connect(DATABASE_URL, **keepalive_kwargs)
     try:
         print('[INFO] Сonnection from "get_name_pool" was successful!')
 
@@ -35,7 +41,7 @@ def get_pool():
 
 
 class DB:
-    conn = psycopg2.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL, **keepalive_kwargs)
     try:
         print('[INFO] Сonnection was successful!')
 
