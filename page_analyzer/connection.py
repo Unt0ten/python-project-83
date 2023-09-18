@@ -3,11 +3,16 @@ from bs4 import BeautifulSoup
 
 
 def get_seo(url):
-    resp = requests.get(url)
+    try:
+        resp = requests.get(url)
+    except Exception as ex:
+        print('[INFO] URL broken!', ex)
+        return 
+
     status = resp.status_code
 
-    if resp.raise_for_status():
-        return
+    # if resp.raise_for_status():
+    #     return
 
     soup = BeautifulSoup(resp.text, 'lxml')
     h1 = soup.h1
