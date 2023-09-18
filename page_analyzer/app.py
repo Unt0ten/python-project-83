@@ -40,7 +40,7 @@ def post_new_data():
     if not data:
         flash('URL обязателен', 'warning')
         messages = get_flashed_messages()
-        return render_template('index.html', messages=messages)
+        return render_template('index.html', messages=messages), 422
 
     url = urlparse(data)
     norm_url = normalize_url(url)
@@ -48,17 +48,17 @@ def post_new_data():
     if not norm_url:
         flash('Некорректный URL', 'warning')
         messages = get_flashed_messages()
-        return render_template('index.html', messages=messages)
+        return render_template('index.html', messages=messages), 422
 
     errors = validate(data)
-    POOL_NAME, _ = get_pool()
+    pool_name, _ = get_pool()
 
     if errors:
         flash('URL превышает 255 символов', 'warning')
         messages = get_flashed_messages()
-        return render_template('index.html', messages=messages)
+        return render_template('index.html', messages=messages), 422
 
-    elif norm_url in POOL_NAME:
+    elif norm_url in pool_name:
         id_ = repo.get_id(norm_url)
         flash('Страница уже существует', 'warning')
         return redirect(url_for('get_url_from_id', id=id_))
@@ -73,8 +73,8 @@ def post_new_data():
 
 @app.route('/urls/<int:id>')
 def get_url_from_id(id):
-    _, POOL_ID = get_pool()
-    if id not in POOL_ID:
+    _, pool_id = get_pool()
+    if id not in pool_id:
         return render_template('error_404.html'), 404
 
     messages = get_flashed_messages()
@@ -96,11 +96,11 @@ def check_url(id):
     if not info:
         flash('Произошла ошибка при проверке', 'warning')
         return redirect(url_for('get_url_from_id',
-                            id=id,
-                            ))
+                                id=id,
+                                ), 422)
 
     repo.add_checks(id, info)
     flash('Страница успешно проверена', 'success')
     return redirect(url_for('get_url_from_id',
                             id=id,
-                            ))
+                            ), 302)

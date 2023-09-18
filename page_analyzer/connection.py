@@ -7,7 +7,7 @@ def get_seo(url):
     status = resp.status_code
 
     if resp.raise_for_status():
-        return None
+        return
 
     soup = BeautifulSoup(resp.text, 'lxml')
     h1 = soup.h1
