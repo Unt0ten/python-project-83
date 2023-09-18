@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
 from page_analyzer.db_url import DB, get_pool
-from page_analyzer.tools import validate, normalize_url
-from page_analyzer.connection import get_seo
+from page_analyzer.tools import validate_len, normalize_url
+from page_analyzer.connection import PHtml
 from flask import (
     Flask,
     render_template,
@@ -12,6 +12,7 @@ from flask import (
     redirect,
     make_response
     )
+import requests
 import os
 
 app = Flask(__name__)
@@ -50,7 +51,7 @@ def post_new_data():
         messages = get_flashed_messages()
         return render_template('index.html', messages=messages), 422
 
-    errors = validate(data)
+    errors = validate_len(data)
     pool_name, _ = get_pool()
 
     if errors:
@@ -92,15 +93,19 @@ def get_url_from_id(id):
 @app.route('/urls/<int:id>/checks', methods=['POST'])
 def check_url(id):
     url, _ = repo.get_data_from_id(id)
-    info = get_seo(url)
-    if not info:
-        flash('Произошла ошибка при проверке', 'warning')
-        return redirect(url_for('get_url_from_id',
-                                id=id,
-                                ), 422)
+    try:
+        resp = requests.get(url)
+        soup = PHtml(resp)
+        status = resp.status_code
+        h1 = soup.get_h1()
+        title = soup.get_title()
+        description = soup.get_description()
+        repo.add_checks(id, status, h1, title, description)
+        flash('Страница успешно проверена', 'success')
 
-    repo.add_checks(id, info)
-    flash('Страница успешно проверена', 'success')
+    except requests.exceptions.RequestException:
+        flash('Произошла ошибка при проверке', 'warning')
+
     return redirect(url_for('get_url_from_id',
                             id=id,
                             ), 302)

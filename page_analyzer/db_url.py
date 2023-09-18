@@ -68,12 +68,12 @@ class DB:
 
         return id[0][0]
 
-    def add_checks(self, id, args):
-        status_code, h1, title, description = args
+    def add_checks(self, id, *args):
+        # status_code, h1, title, description = args
         request = '''INSERT INTO url_checks
                 (url_id, status_code, h1, title, description)
                 VALUES (%s, %s, %s, %s, %s);''', (
-            id, status_code, h1, title, description)
+            id, *args)
 
         proc_data(request)
 

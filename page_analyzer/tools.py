@@ -1,15 +1,19 @@
-def validate(data):
+from validators import url as validate_url
+
+
+def validate_len(data):
     return len(data) > 255
 
 
 def normalize_url(url):
     scheme = url.scheme
     netloc = url.netloc
-    if not scheme or not netloc:
+    norm_url = f'{str(scheme)}://' \
+               f'{str(netloc.replace(":" + str(url.port), ""))}'
+    if not validate_url(norm_url):
         return False
 
-    return f'{str(scheme)}://' \
-           f'{str(netloc.replace(":" + str(url.port), ""))}'
+    return norm_url
 
 
 def make_dict_urls(data):

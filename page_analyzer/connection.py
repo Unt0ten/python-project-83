@@ -1,31 +1,25 @@
-import requests
 from bs4 import BeautifulSoup
 
 
-def get_seo(url):
-    try:
-        resp = requests.get(url)
-    except Exception as ex:
-        print('[INFO] URL broken!', ex)
-        return 
+class PHtml:
+    def __init__(self, resp):
+        self.soup = BeautifulSoup(resp.text, 'lxml')
 
-    status = resp.status_code
+    def get_h1(self):
+        h1 = self.soup.h1
+        if h1:
+            h1 = h1.string
+        return h1
 
-    # if resp.raise_for_status():
-    #     return
+    def get_title(self):
+        title = self.soup.title
+        if title:
+            title = title.string
+        return title
 
-    soup = BeautifulSoup(resp.text, 'lxml')
-    h1 = soup.h1
-    if h1:
-        h1 = h1.string
-
-    title = soup.title
-    if title:
-        title = title.string
-
-    description = None
-    for meta in soup.find_all('meta'):
-        if meta.get('name') == 'description':
-            description = meta.get('content')
-
-    return status, h1, title, description
+    def get_description(self):
+        description = None
+        for meta in self.soup.find_all('meta'):
+            if meta.get('name') == 'description':
+                description = meta.get('content')
+        return description
