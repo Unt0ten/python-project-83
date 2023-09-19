@@ -1,6 +1,10 @@
 from urllib.parse import urlparse
 from page_analyzer.db_url import DB, get_pool
-from page_analyzer.tools import validate_len, normalize_url
+from page_analyzer.tools import (
+                                    validate_len,
+                                    normalize_url,
+                                    validate_status_code
+                                )
 from page_analyzer.connection import PHtml
 from flask import (
     Flask,
@@ -96,7 +100,7 @@ def check_url(id):
     try:
         resp = requests.get(url)
         soup = PHtml(resp)
-        status = resp.status_code
+        status = validate_status_code(resp.status_code)
         h1 = soup.get_h1()
         title = soup.get_title()
         description = soup.get_description()
