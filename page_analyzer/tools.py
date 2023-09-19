@@ -30,8 +30,7 @@ def make_dict_checks(data):
     for row in data:
         result.append(
             {"id": row[0], "status": row[2], "h1": row[3], "title": row[4],
-             "desc": row[5], "created_at": row[6]}
-            )
+             "desc": row[5], "created_at": row[6]})
 
     return result
 

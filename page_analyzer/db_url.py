@@ -96,11 +96,10 @@ class DB:
         result = proc_data(request)
         for row in result:
             data.append(
-                        {
-                            "id": row[0],
-                            "name": row[1],
-                            "status": row[2],
-                            "created_at": row[3]
-                            }
-                        )
+                {
+                    "id": row[0],
+                    "name": row[1],
+                    "status": row[2],
+                    "created_at": row[3]})
+
         return data

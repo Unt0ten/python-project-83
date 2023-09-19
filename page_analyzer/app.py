@@ -1,25 +1,22 @@
 from urllib.parse import urlparse
 from page_analyzer.db_url import DB, get_pool
 from page_analyzer.tools import (
-                                validate_len,
-                                normalize_url,
-                                validate_status_code
-                                )
+    validate_len,
+    normalize_url,
+    validate_status_code)
 from page_analyzer.connection import PHtml
 from flask import (
-                    Flask,
-                    render_template,
-                    request,
-                    url_for,
-                    flash,
-                    get_flashed_messages,
-                    redirect,
-                    make_response
-                    )
+    Flask,
+    render_template,
+    request,
+    url_for,
+    flash,
+    get_flashed_messages,
+    redirect,
+    make_response)
 import requests
 import os
 from dotenv import load_dotenv
-
 
 load_dotenv()
 app = Flask(__name__)
