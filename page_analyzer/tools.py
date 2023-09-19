@@ -37,6 +37,6 @@ def make_dict_checks(data):
 
 
 def validate_status_code(status_code):
-    if status_code == 500:
+    if status_code != 200:
         raise RequestException("Broken URL!")
     return status_code
