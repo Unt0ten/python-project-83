@@ -1,10 +1,10 @@
 from urllib.parse import urlparse
 from page_analyzer.db_url import DB, get_pool
 from page_analyzer.tools import (
-                                    validate_len,
-                                    normalize_url,
-                                    validate_status_code
-                                )
+    validate_len,
+    normalize_url,
+    validate_status_code
+    )
 from page_analyzer.connection import PHtml
 from flask import (
     Flask,
@@ -22,6 +22,11 @@ import os
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
 repo = DB()
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('error_404.html'), 404
 
 
 @app.route('/')
@@ -80,7 +85,7 @@ def post_new_data():
 def get_url_from_id(id):
     _, pool_id = get_pool()
     if id not in pool_id:
-        return render_template('error_404.html'), 404
+        return not_found(404)
 
     messages = get_flashed_messages()
     name, created_at = repo.get_data_from_id(id)
