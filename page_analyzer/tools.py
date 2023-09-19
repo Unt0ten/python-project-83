@@ -1,6 +1,7 @@
 from validators import url as validate_url
 from requests.exceptions import RequestException
 
+
 def validate_len(data):
     return len(data) > 255
 
@@ -33,6 +34,7 @@ def make_dict_checks(data):
             )
 
     return result
+
 
 def validate_status_code(status_code):
     if status_code == 500:
