@@ -3,8 +3,8 @@ import os
 from dotenv import load_dotenv
 from page_analyzer.tools import make_dict_urls, make_dict_checks
 
-DATABASE_URL = os.getenv('DATABASE_URL')
 load_dotenv()
+DATABASE_URL = os.getenv('DATABASE_URL')
 
 
 def proc_data(request):
