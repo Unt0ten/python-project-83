@@ -68,11 +68,9 @@ def post_new_data():
 
     elif norm_url in pool_name:
         id_ = repo.get_id(norm_url)
-        flash('Страница уже существует', 'warning')
-        messages = get_flashed_messages(with_categories=True)
+        flash('Страница уже существует', 'success')
         return redirect(url_for('get_url_from_id',
-                                id=id_,
-                                messages=messages))
+                                id=id_))
 
     repo.add_url(norm_url)
     flash('Страница успешно добавлена', 'success')
