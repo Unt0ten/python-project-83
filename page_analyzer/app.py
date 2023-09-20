@@ -12,8 +12,7 @@ from flask import (
     url_for,
     flash,
     get_flashed_messages,
-    redirect,
-    make_response)
+    redirect)
 import requests
 import os
 from dotenv import load_dotenv
@@ -31,16 +30,15 @@ def not_found(error):
 
 @app.route('/')
 def open_main():
-    return render_template('index.html')
+    messages = get_flashed_messages(with_categories=True)
+    return render_template('index.html', messages=messages)
 
 
 @app.route('/urls')
 def get_all_urls():
     data = repo.get_last_check_data()
-    messages = get_flashed_messages()
     return render_template('all_data.html',
-                           data=data,
-                           messages=messages
+                           data=data
                            )
 
 
@@ -49,7 +47,7 @@ def post_new_data():
     data = request.form.get('url')
     if not data:
         flash('URL обязателен', 'warning')
-        messages = get_flashed_messages()
+        messages = get_flashed_messages(with_categories=True)
         return render_template('index.html', messages=messages), 422
 
     url = urlparse(data)
@@ -57,7 +55,7 @@ def post_new_data():
 
     if not norm_url:
         flash('Некорректный URL', 'warning')
-        messages = get_flashed_messages()
+        messages = get_flashed_messages(with_categories=True)
         return render_template('index.html', messages=messages), 422
 
     errors = validate_len(data)
@@ -65,20 +63,22 @@ def post_new_data():
 
     if errors:
         flash('URL превышает 255 символов', 'warning')
-        messages = get_flashed_messages()
+        messages = get_flashed_messages(with_categories=True)
         return render_template('index.html', messages=messages), 422
 
     elif norm_url in pool_name:
         id_ = repo.get_id(norm_url)
         flash('Страница уже существует', 'warning')
-        return redirect(url_for('get_url_from_id', id=id_))
+        messages = get_flashed_messages(with_categories=True)
+        return redirect(url_for('get_url_from_id',
+                                id=id_,
+                                messages=messages))
 
     repo.add_url(norm_url)
     flash('Страница успешно добавлена', 'success')
     id = repo.get_id(norm_url)
 
-    return make_response(
-        redirect(url_for('get_url_from_id', id=id), code=302))
+    return redirect(url_for('get_url_from_id', id=id), code=302)
 
 
 @app.route('/urls/<int:id>')
@@ -87,7 +87,7 @@ def get_url_from_id(id):
     if id not in pool_id:
         return not_found(404)
 
-    messages = get_flashed_messages()
+    messages = get_flashed_messages(with_categories=True)
     name, created_at = repo.get_data_from_id(id)
     checks = repo.get_url_checks(id)
     return render_template('specific_data.html',
