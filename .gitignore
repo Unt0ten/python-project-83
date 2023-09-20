@@ -7,4 +7,3 @@ dist/
 coverage.xml
 .pytest_cache
 .env
-page_analyzer/test.py
