@@ -17,14 +17,6 @@ def normalize_url(url):
     return norm_url
 
 
-def make_dict_urls(data):
-    result = []
-    for row in data:
-        result.append({"id": row[0], "name": row[1], "created_at": row[2]})
-
-    return result
-
-
 def make_dict_checks(data):
     result = []
     for row in data:

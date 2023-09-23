@@ -1,4 +1,4 @@
-from page_analyzer.tools import make_dict_urls, make_dict_checks
+from page_analyzer.tools import make_dict_checks
 
 
 def get_pool(connection):
