@@ -8,12 +8,10 @@ def get_pool(connection):
     try:
         print('[INFO] Сonnection was successful!')
         with connection.cursor() as cursor:
-            cursor.execute('''SELECT name FROM urls ORDER BY id DESC;''')
-            request_names = cursor.fetchall()
-            cursor.execute('''SELECT id FROM urls ORDER BY id DESC;''')
-            request_id = cursor.fetchall()
-            pool_name = [(row[0]) for row in request_names]
-            pool_id = [(row[0]) for row in request_id]
+            cursor.execute('''SELECT id, name FROM urls ORDER BY id DESC;''')
+            common_pool = cursor.fetchall()
+            pool_id = [(row[0]) for row in common_pool]
+            pool_name = [(row[1]) for row in common_pool]
 
             return pool_name, pool_id
 

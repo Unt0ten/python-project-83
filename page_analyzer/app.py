@@ -84,7 +84,7 @@ def post_urls():
         return redirect(url_for('get_url_from_id',
                                 id=id_))
 
-    add_url(norm_url)
+    add_url(CONN, norm_url)
     flash('Страница успешно добавлена', 'success')
     id = get_id(CONN, norm_url)
 
