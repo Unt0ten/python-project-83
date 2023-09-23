@@ -1,7 +1,4 @@
-from dotenv import load_dotenv
 import psycopg2.extras
-
-load_dotenv()
 
 
 def get_pool(connection):
