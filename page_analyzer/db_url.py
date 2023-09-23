@@ -1,4 +1,7 @@
 from page_analyzer.tools import make_dict_checks
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def get_pool(connection):
