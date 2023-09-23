@@ -3,7 +3,6 @@ from page_analyzer.db_url import (
     get_pool,
     add_url,
     get_data_from_id,
-    get_all_data_urls,
     get_url_checks,
     get_last_check_data,
     add_checks,

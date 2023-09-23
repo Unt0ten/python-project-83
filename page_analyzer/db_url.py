@@ -49,19 +49,6 @@ def get_data_from_id(connection, id):
         print('[INFO] Error while working with PostgreSQL', ex)
 
 
-def get_all_data_urls(connection):
-    try:
-        print('[INFO] Сonnection was successful!')
-        with connection.cursor() as cursor:
-            cursor.execute('''SELECT * FROM urls ORDER BY id DESC;''')
-            result = cursor.fetchall()
-            return make_dict_urls(result)
-
-    except Exception as ex:
-        connection.rollback()
-        print('[INFO] Error while working with PostgreSQL', ex)
-
-
 def get_id(connection, name):
     try:
         print('[INFO] Сonnection was successful!')
