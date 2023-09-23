@@ -17,16 +17,6 @@ def normalize_url(url):
     return norm_url
 
 
-def make_dict_checks(data):
-    result = []
-    for row in data:
-        result.append(
-            {"id": row[0], "status": row[2], "h1": row[3], "title": row[4],
-             "desc": row[5], "created_at": row[6]})
-
-    return result
-
-
 def validate_status_code(status_code):
     if status_code > 399:
         raise RequestException("Broken URL!")

@@ -1,4 +1,7 @@
-{% extends 'index.html' %}
+{% extends 'main.html' %}
+{% block header %}
+{{ super() }}
+{% endblock header %}
 {% block messages %}
 {{ super() }}
 {% endblock messages %}
@@ -51,7 +54,7 @@
             
             <td>{{ row.id }}</td>
             
-            <td>{{ row.status }}</td>
+            <td>{{ row.status_code }}</td>
             
             {% if row.h1 %}
             <td>{{ row.h1 }}</td>
@@ -65,8 +68,8 @@
             <td></td>
             {% endif %}
             
-            {% if row.desc %}
-            <td>{{ row.desc }}</td>
+            {% if row.description %}
+            <td>{{ row.description }}</td>
             {% else %}
             <td></td>
             {% endif %}

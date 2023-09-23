@@ -1,5 +1,7 @@
-{% extends 'index.html' %}
-
+{% extends 'main.html' %}
+{% block header %}
+{{ super() }}
+{% endblock header %}
 {% block main %}
   <main class="flex-grow-1">
     <div class="container-lg mt-3">
@@ -33,8 +35,8 @@
         <td></td>
         {% endif %}
         
-        {% if row.status %}
-        <td>{{ row.status }}</td>
+        {% if row.status_code %}
+        <td>{{ row.status_code }}</td>
         {% else %}
         <td></td>
         {% endif %}

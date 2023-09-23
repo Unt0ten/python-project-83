@@ -1,5 +1,7 @@
-{% extends 'index.html' %}
-
+{% extends 'main.html' %}
+{% block header %}
+{{ super() }}
+{% endblock header %}
 {% block main %}
   <main class="flex-grow-1">
     <div class="container-lg mt-3">

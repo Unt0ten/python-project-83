@@ -40,9 +40,9 @@ def not_found(error):
 
 
 @app.route('/')
-def get_index():
+def get_main():
     messages = get_flashed_messages(with_categories=True)
-    return render_template('index.html', messages=messages)
+    return render_template('main.html', messages=messages)
 
 
 @app.route('/urls')
@@ -59,7 +59,7 @@ def post_urls():
     if not data:
         flash('URL обязателен', 'warning')
         messages = get_flashed_messages(with_categories=True)
-        return render_template('index.html', messages=messages), 422
+        return render_template('main.html', messages=messages), 422
 
     url = urlparse(data)
     norm_url = normalize_url(url)
@@ -67,7 +67,7 @@ def post_urls():
     if not norm_url:
         flash('Некорректный URL', 'warning')
         messages = get_flashed_messages(with_categories=True)
-        return render_template('index.html', messages=messages), 422
+        return render_template('main.html', messages=messages), 422
 
     errors = validate_len(data)
     pool_name, _ = get_pool(CONN)
@@ -75,7 +75,7 @@ def post_urls():
     if errors:
         flash('URL превышает 255 символов', 'warning')
         messages = get_flashed_messages(with_categories=True)
-        return render_template('index.html', messages=messages), 422
+        return render_template('main.html', messages=messages), 422
 
     elif norm_url in pool_name:
         id_ = get_id(CONN, norm_url)

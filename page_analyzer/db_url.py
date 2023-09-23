@@ -1,5 +1,5 @@
-from page_analyzer.tools import make_dict_checks
 from dotenv import load_dotenv
+import psycopg2.extras
 
 load_dotenv()
 
@@ -80,12 +80,13 @@ def add_checks(connection, id, *args):
 def get_url_checks(connection, id):
     try:
         print('[INFO] Сonnection was successful!')
-        with connection.cursor() as cursor:
+        with connection.cursor(
+                cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
             cursor.execute('''SELECT * FROM url_checks
                     WHERE url_id = (%s)
                     ORDER BY id DESC;''', (id,))
             result = cursor.fetchall()
-            return make_dict_checks(result)
+            return result
 
     except Exception as ex:
         connection.rollback()
@@ -93,25 +94,17 @@ def get_url_checks(connection, id):
 
 
 def get_last_check_data(connection):
-    data = []
     try:
         print('[INFO] Сonnection was successful!')
-        with connection.cursor() as cursor:
+        with connection.cursor(
+                cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
             cursor.execute("""SELECT DISTINCT ON (urls.id) urls.id,
                     urls.name, url_checks.status_code, url_checks.created_at
                     FROM urls LEFT JOIN url_checks
                         ON urls.id = url_checks.url_id
                 ORDER BY urls.id DESC;""")
             result = cursor.fetchall()
-
-            for row in result:
-                data.append(
-                    {
-                        "id": row[0],
-                        "name": row[1],
-                        "status": row[2],
-                        "created_at": row[3]})
-            return data
+            return result
 
     except Exception as ex:
         connection.rollback()
