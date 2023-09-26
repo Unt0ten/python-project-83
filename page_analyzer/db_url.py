@@ -1,6 +1,12 @@
 import psycopg2.extras
 
 
+def get_connection(database):
+    connection = psycopg2.connect(database)
+    connection.autocommit = True
+    return connection
+
+
 def get_pool(connection):
     try:
         print('[INFO] Сonnection was successful!')
