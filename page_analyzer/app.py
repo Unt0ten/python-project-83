@@ -58,7 +58,7 @@ def post_urls():
         return render_template('main.html', messages=messages), 422
 
     errors = page_analyzer.tools.validate_len(data)
-    pool_name, _ = page_analyzer.db_url.get_pool(conn)
+    pool_name, _ = page_analyzer.db_url.get_urls(conn)
 
     if errors:
         flash('URL превышает 255 символов', 'warning')
@@ -81,12 +81,12 @@ def post_urls():
 @app.route('/urls/<int:id>')
 def get_url_from_id(id):
     conn = page_analyzer.db_url.get_connection(DATABASE_URL)
-    _, pool_id = page_analyzer.db_url.get_pool(conn)
+    _, pool_id = page_analyzer.db_url.get_urls(conn)
     if id not in pool_id:
         return not_found(404)
 
     messages = get_flashed_messages(with_categories=True)
-    name, created_at = page_analyzer.db_url.get_data_from_id(conn, id)
+    name, created_at = page_analyzer.db_url.get_data_by_id(conn, id)
     checks = page_analyzer.db_url.get_url_checks(conn, id)
     return render_template('specific_data.html',
                            id=id,
@@ -100,15 +100,15 @@ def get_url_from_id(id):
 @app.route('/urls/<int:id>/checks', methods=['POST'])
 def check_url(id):
     conn = page_analyzer.db_url.get_connection(DATABASE_URL)
-    url, _ = page_analyzer.db_url.get_data_from_id(conn, id)
+    url, _ = page_analyzer.db_url.get_data_by_id(conn, id)
     try:
         resp = requests.get(url)
         seo = get_seo(resp)
         status = page_analyzer.tools.validate_status_code(resp.status_code)
-        page_analyzer.db_url.add_checks(conn,
-                                        id,
-                                        status,
-                                        *seo)
+        page_analyzer.db_url.add_check(conn,
+                                       id,
+                                       status,
+                                       *seo)
         flash('Страница успешно проверена', 'success')
 
     except requests.exceptions.RequestException:
