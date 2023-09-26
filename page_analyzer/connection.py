@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 
+
 def get_seo(resp):
     soup = BeautifulSoup(resp.text, 'lxml')
 
