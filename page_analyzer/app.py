@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
 import page_analyzer.db_url
 import page_analyzer.tools
-from page_analyzer.connection import PHtml
+from page_analyzer.connection import get_seo
 from flask import (
     Flask,
     render_template,
@@ -103,17 +103,12 @@ def check_url(id):
     url, _ = page_analyzer.db_url.get_data_from_id(conn, id)
     try:
         resp = requests.get(url)
-        soup = PHtml(resp)
+        seo = get_seo(resp)
         status = page_analyzer.tools.validate_status_code(resp.status_code)
-        h1 = soup.get_h1()
-        title = soup.get_title()
-        description = soup.get_description()
         page_analyzer.db_url.add_checks(conn,
                                         id,
                                         status,
-                                        h1,
-                                        title,
-                                        description)
+                                        *seo)
         flash('Страница успешно проверена', 'success')
 
     except requests.exceptions.RequestException:

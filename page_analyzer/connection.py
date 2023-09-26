@@ -1,25 +1,19 @@
 from bs4 import BeautifulSoup
 
+def get_seo(resp):
+    soup = BeautifulSoup(resp.text, 'lxml')
 
-class PHtml:
-    def __init__(self, resp):
-        self.soup = BeautifulSoup(resp.text, 'lxml')
+    h1 = soup.h1
+    if h1:
+        h1 = h1.string
 
-    def get_h1(self):
-        h1 = self.soup.h1
-        if h1:
-            h1 = h1.string
-        return h1
+    title = soup.title
+    if title:
+        title = title.string
 
-    def get_title(self):
-        title = self.soup.title
-        if title:
-            title = title.string
-        return title
+    description = None
+    for meta in soup.find_all('meta'):
+        if meta.get('name') == 'description':
+            description = meta.get('content')
 
-    def get_description(self):
-        description = None
-        for meta in self.soup.find_all('meta'):
-            if meta.get('name') == 'description':
-                description = meta.get('content')
-        return description
+    return h1, title, description
