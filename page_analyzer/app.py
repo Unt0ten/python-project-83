@@ -58,7 +58,7 @@ def post_urls():
         return render_template('main.html', messages=messages), 422
 
     errors = page_analyzer.tools.validate_len(data)
-    pool_name, _ = page_analyzer.db_url.get_urls(conn)
+    pool_name = page_analyzer.db_url.get_names_urls(conn)
 
     if errors:
         flash('URL превышает 255 символов', 'warning')
@@ -81,7 +81,7 @@ def post_urls():
 @app.route('/urls/<int:id>')
 def get_url_from_id(id):
     conn = page_analyzer.db_url.get_connection(DATABASE_URL)
-    _, pool_id = page_analyzer.db_url.get_urls(conn)
+    pool_id = page_analyzer.db_url.get_id_urls(conn)
     if id not in pool_id:
         return not_found(404)
 

@@ -7,17 +7,31 @@ def get_connection(database):
     return connection
 
 
-def get_urls(connection):
+def get_id_urls(connection):
     try:
         print('[INFO] Сonnection was successful!')
         with connection.cursor(
                 cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
-            cursor.execute('''SELECT id, name FROM urls ORDER BY id DESC;''')
+            cursor.execute('''SELECT id FROM urls ORDER BY id DESC;''')
             common_pool = cursor.fetchall()
             pool_id = [row.id for row in common_pool]
+
+            return pool_id
+
+    except Exception as ex:
+        print('[INFO] Error while working with PostgreSQL', ex)
+
+
+def get_names_urls(connection):
+    try:
+        print('[INFO] Сonnection was successful!')
+        with connection.cursor(
+                cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
+            cursor.execute('''SELECT name FROM urls ORDER BY id DESC;''')
+            common_pool = cursor.fetchall()
             pool_name = [row.name for row in common_pool]
 
-            return pool_name, pool_id
+            return pool_name
 
     except Exception as ex:
         print('[INFO] Error while working with PostgreSQL', ex)
