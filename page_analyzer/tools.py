@@ -9,8 +9,7 @@ def validate_len(data):
 def normalize_url(url):
     scheme = url.scheme
     netloc = url.netloc
-    norm_url = f'{str(scheme)}://' \
-               f'{str(netloc.replace(":" + str(url.port), ""))}'
+    norm_url = f'{str(scheme)}://{str(netloc.replace(":" + str(url.port), ""))}'
     if not validate_url(norm_url):
         return False
 

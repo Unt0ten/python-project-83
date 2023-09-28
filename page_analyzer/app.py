@@ -9,7 +9,8 @@ from flask import (
     url_for,
     flash,
     get_flashed_messages,
-    redirect)
+    redirect
+)
 import requests
 import os
 from dotenv import load_dotenv
@@ -35,9 +36,7 @@ def get_main():
 def get_all_urls():
     conn = page_analyzer.db_url.get_connection(DATABASE_URL)
     data = page_analyzer.db_url.get_last_check_data(conn)
-    return render_template('all_data.html',
-                           data=data
-                           )
+    return render_template('all_data.html', data=data)
 
 
 @app.route('/urls', methods=['POST'])
@@ -88,13 +87,14 @@ def get_url_from_id(id):
     messages = get_flashed_messages(with_categories=True)
     name, created_at = page_analyzer.db_url.get_data_by_id(conn, id)
     checks = page_analyzer.db_url.get_url_checks(conn, id)
-    return render_template('specific_data.html',
-                           id=id,
-                           name=name,
-                           created_at=created_at,
-                           messages=messages,
-                           checks=checks
-                           )
+    return render_template(
+        'specific_data.html',
+        id=id,
+        name=name,
+        created_at=created_at,
+        messages=messages,
+        checks=checks
+    )
 
 
 @app.route('/urls/<int:id>/checks', methods=['POST'])
@@ -105,15 +105,10 @@ def check_url(id):
         resp = requests.get(url)
         seo = get_seo(resp)
         status = page_analyzer.tools.validate_status_code(resp.status_code)
-        page_analyzer.db_url.add_check(conn,
-                                       id,
-                                       status,
-                                       *seo)
+        page_analyzer.db_url.add_check(conn, id, status, *seo)
         flash('Страница успешно проверена', 'success')
 
     except requests.exceptions.RequestException:
         flash('Произошла ошибка при проверке', 'warning')
 
-    return redirect(url_for('get_url_from_id',
-                            id=id,
-                            ), 302)
+    return redirect(url_for('get_url_from_id', id=id), 302)
