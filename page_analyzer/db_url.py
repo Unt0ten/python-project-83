@@ -122,8 +122,7 @@ def get_last_check_data(connection):
             cursor.execute(
                 """SELECT DISTINCT ON (url_id) url_id, status_code, created_at
                 FROM url_checks
-                ORDER BY url_id DESC, created_at DESC;"""
-                )
+                ORDER BY url_id DESC, created_at DESC;""")
             checks = cursor.fetchall()
 
         for url in urls:
