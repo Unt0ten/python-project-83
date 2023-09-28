@@ -108,17 +108,39 @@ def get_url_checks(connection, url_id):
 
 
 def get_last_check_data(connection):
+    data = []
     try:
         print('[INFO] Сonnection was successful!')
         with connection.cursor(
                 cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
-            cursor.execute("""SELECT DISTINCT ON (urls.id) urls.id,
-                    urls.name, url_checks.status_code, url_checks.created_at
-                    FROM urls LEFT JOIN url_checks
-                        ON urls.id = url_checks.url_id
-                ORDER BY urls.id DESC;""")
-            result = cursor.fetchall()
-            return result
+            cursor.execute("""SELECT id, name
+                    FROM urls ORDER BY id DESC;""")
+            urls = cursor.fetchall()
+
+        with connection.cursor(
+                cursor_factory=psycopg2.extras.NamedTupleCursor) as cursor:
+            cursor.execute(
+                """SELECT DISTINCT ON (url_id) url_id, status_code, created_at
+                FROM url_checks
+                ORDER BY url_id DESC, created_at DESC;"""
+                )
+            checks = cursor.fetchall()
+
+        for url in urls:
+            for element in range(len(checks)):
+                if url.id == checks[element].url_id:
+                    data.append(
+                        {'id': url.id, 'name': url.name,
+                         'created_at': checks[element].created_at,
+                         'status_code': checks[element].status_code})
+                    break
+            else:
+                data.append(
+                    {'id': url.id, 'name': url.name,
+                     'created_at': None,
+                     'status_code': None})
+
+        return data
 
     except Exception as ex:
         print('[INFO] Error while working with PostgreSQL', ex)
