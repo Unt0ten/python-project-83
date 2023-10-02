@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
-import page_analyzer.db_url
-import page_analyzer.tools
-from page_analyzer.connection import get_seo
+from page_analyzer import db_url
+from page_analyzer import tools
+from page_analyzer.seo import get_seo
 from flask import (
     Flask,
     render_template,
@@ -9,7 +9,8 @@ from flask import (
     url_for,
     flash,
     get_flashed_messages,
-    redirect
+    redirect,
+    abort
 )
 import requests
 import os
@@ -23,75 +24,91 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 
 @app.errorhandler(404)
 def not_found(error):
-    return render_template('error_404.html'), 404
+    return render_template('errors/error_404.html'), 404
+
+
+@app.errorhandler(500)
+def server_error(error):
+    return render_template('errors/error_500.html'), 500
 
 
 @app.route('/')
 def get_main():
     messages = get_flashed_messages(with_categories=True)
-    return render_template('main.html', messages=messages)
+    return render_template('index.html', messages=messages)
 
 
 @app.route('/urls')
 def get_all_urls():
-    conn = page_analyzer.db_url.get_connection(DATABASE_URL)
-    data = page_analyzer.db_url.get_last_check_data(conn)
-    return render_template('all_data.html', data=data)
+    conn = db_url.get_connection(DATABASE_URL)
+    data = db_url.get_last_check_data(conn)
+    db_url.conn_close(conn)
+    return render_template('url/urls.html', data=data)
 
 
 @app.route('/urls', methods=['POST'])
 def post_urls():
-    conn = page_analyzer.db_url.get_connection(DATABASE_URL)
+    conn = db_url.get_connection(DATABASE_URL)
     data = request.form.get('url')
     if not data:
         flash('URL обязателен', 'warning')
         messages = get_flashed_messages(with_categories=True)
-        return render_template('main.html', messages=messages), 422
+        db_url.conn_close(conn)
+        return render_template('index.html', messages=messages), 422
 
     url = urlparse(data)
-    norm_url = page_analyzer.tools.normalize_url(url)
+    norm_url = tools.normalize_url(url)
 
     if not norm_url:
         flash('Некорректный URL', 'warning')
         messages = get_flashed_messages(with_categories=True)
-        return render_template('main.html', messages=messages), 422
+        db_url.conn_close(conn)
+        return render_template('index.html', messages=messages), 422
 
-    errors = page_analyzer.tools.validate_len(data)
-    pool_name = page_analyzer.db_url.get_names_urls(conn)
+    errors = tools.validate_len(data)
 
     if errors:
         flash('URL превышает 255 символов', 'warning')
         messages = get_flashed_messages(with_categories=True)
-        return render_template('main.html', messages=messages), 422
+        db_url.conn_close(conn)
+        return render_template('index.html', messages=messages), 422
 
-    elif norm_url in pool_name:
-        id_ = page_analyzer.db_url.get_id(conn, norm_url)
+    searched_name = db_url.get_url_by_name(conn, norm_url)
+
+    if searched_name:
         flash('Страница уже существует', 'success')
-        return redirect(url_for('get_url_from_id',
-                                id=id_))
+        db_url.conn_close(conn)
+        return redirect(
+            url_for(
+                'get_url_from_id',
+                id=searched_name.id
+            )
+        )
 
-    page_analyzer.db_url.add_url(conn, norm_url)
+    db_url.add_url(conn, norm_url)
     flash('Страница успешно добавлена', 'success')
-    id = page_analyzer.db_url.get_id(conn, norm_url)
+    url = db_url.get_url_by_name(conn, norm_url)
+    db_url.conn_close(conn)
 
-    return redirect(url_for('get_url_from_id', id=id), code=302)
+    return redirect(url_for('get_url_from_id', id=url.id), code=302)
 
 
 @app.route('/urls/<int:id>')
 def get_url_from_id(id):
-    conn = page_analyzer.db_url.get_connection(DATABASE_URL)
-    pool_id = page_analyzer.db_url.get_id_urls(conn)
-    if id not in pool_id:
-        return not_found(404)
+    conn = db_url.get_connection(DATABASE_URL)
+    searched_id = db_url.get_url_id(id, conn)
+    if not searched_id:
+        db_url.conn_close(conn)
+        abort(404)
 
     messages = get_flashed_messages(with_categories=True)
-    name, created_at = page_analyzer.db_url.get_data_by_id(conn, id)
-    checks = page_analyzer.db_url.get_url_checks(conn, id)
+    info_url = db_url.get_url_by_id(conn, id)
+    checks = db_url.get_url_checks(conn, id)
+    db_url.conn_close(conn)
     return render_template(
-        'specific_data.html',
+        'url/url.html',
         id=id,
-        name=name,
-        created_at=created_at,
+        info_url=info_url,
         messages=messages,
         checks=checks
     )
@@ -99,16 +116,18 @@ def get_url_from_id(id):
 
 @app.route('/urls/<int:id>/checks', methods=['POST'])
 def check_url(id):
-    conn = page_analyzer.db_url.get_connection(DATABASE_URL)
-    url, _ = page_analyzer.db_url.get_data_by_id(conn, id)
+    conn = db_url.get_connection(DATABASE_URL)
+    url = db_url.get_url_by_id(conn, id)
     try:
-        resp = requests.get(url)
+        resp = requests.get(url.name)
         seo = get_seo(resp)
-        status = page_analyzer.tools.validate_status_code(resp.status_code)
-        page_analyzer.db_url.add_check(conn, id, status, *seo)
+        status = tools.validate_status_code(resp.status_code)
+        db_url.add_check(conn, id, status, *seo)
         flash('Страница успешно проверена', 'success')
+        db_url.conn_close(conn)
 
     except requests.exceptions.RequestException:
         flash('Произошла ошибка при проверке', 'warning')
+        db_url.conn_close(conn)
 
     return redirect(url_for('get_url_from_id', id=id), 302)

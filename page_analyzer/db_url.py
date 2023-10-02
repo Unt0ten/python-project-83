@@ -1,46 +1,14 @@
 import psycopg2.extras
+from flask import abort
 
 
 def get_connection(database):
     connection = psycopg2.connect(database)
-    connection.autocommit = True
     return connection
 
 
-def get_id_urls(connection):
-    try:
-        print('[INFO] Сonnection was successful!')
-        with connection.cursor(
-            cursor_factory=psycopg2.extras.NamedTupleCursor
-        ) as cursor:
-            cursor.execute(
-                '''SELECT id FROM urls ORDER BY id DESC;'''
-            )
-            common_pool = cursor.fetchall()
-            pool_id = [row.id for row in common_pool]
-
-            return pool_id
-
-    except Exception as ex:
-        print('[INFO] Error while working with PostgreSQL', ex)
-
-
-def get_names_urls(connection):
-    try:
-        print('[INFO] Сonnection was successful!')
-        with connection.cursor(
-            cursor_factory=psycopg2.extras.NamedTupleCursor
-        ) as cursor:
-            cursor.execute(
-                '''SELECT name FROM urls ORDER BY id DESC;'''
-            )
-            common_pool = cursor.fetchall()
-            pool_name = [row.name for row in common_pool]
-
-            return pool_name
-
-    except Exception as ex:
-        print('[INFO] Error while working with PostgreSQL', ex)
+def conn_close(connection):
+    connection.close()
 
 
 def add_url(connection, norm_url):
@@ -50,48 +18,49 @@ def add_url(connection, norm_url):
             cursor.execute(
                 '''INSERT INTO urls (name) VALUES (%s);''', (norm_url,)
             )
+            connection.commit()
 
     except Exception as ex:
         print('[INFO] Error while working with PostgreSQL', ex)
+        abort(500)
 
 
-def get_data_by_id(connection, id):
+def get_url_by_id(connection, id):
     try:
         print('[INFO] Сonnection was successful!')
         with connection.cursor(
             cursor_factory=psycopg2.extras.NamedTupleCursor
         ) as cursor:
             cursor.execute(
-                '''SELECT name FROM urls WHERE id = %s;''', (id,)
+                '''SELECT name, created_at FROM urls WHERE id = %s;''', (id,)
             )
-            name = cursor.fetchone()
+            data = cursor.fetchone()
+            connection.commit()
 
-            cursor.execute(
-                '''SELECT created_at FROM urls WHERE name = %s;''', name
-            )
-            created_at = cursor.fetchone()
-
-            return name.name, created_at.created_at
+            return data
 
     except Exception as ex:
         print('[INFO] Error while working with PostgreSQL', ex)
+        abort(500)
 
 
-def get_id(connection, name):
+def get_url_by_name(connection, name):
     try:
         print('[INFO] Сonnection was successful!')
         with connection.cursor(
             cursor_factory=psycopg2.extras.NamedTupleCursor
         ) as cursor:
             cursor.execute(
-                '''SELECT id FROM urls WHERE name = %s;''', (name,)
+                '''SELECT * FROM urls WHERE name = %s;''', (name,)
             )
-            id = cursor.fetchone()
+            url = cursor.fetchone()
+            connection.commit()
 
-            return id.id
+            return url
 
     except Exception as ex:
         print('[INFO] Error while working with PostgreSQL', ex)
+        abort(500)
 
 
 def add_check(connection, id, *args):
@@ -103,9 +72,11 @@ def add_check(connection, id, *args):
                     (url_id, status_code, h1, title, description)
                     VALUES (%s, %s, %s, %s, %s);''', (id, *args)
             )
+            connection.commit()
 
     except Exception as ex:
         print('[INFO] Error while working with PostgreSQL', ex)
+        abort(500)
 
 
 def get_url_checks(connection, url_id):
@@ -120,11 +91,13 @@ def get_url_checks(connection, url_id):
                     ORDER BY id DESC;''', (url_id,)
             )
             result = cursor.fetchall()
+            connection.commit()
 
             return result
 
     except Exception as ex:
         print('[INFO] Error while working with PostgreSQL', ex)
+        abort(500)
 
 
 def get_last_check_data(connection):
@@ -168,8 +141,28 @@ def get_last_check_data(connection):
                         'status_code': None
                     }
                 )
-
+        connection.commit()
         return data
 
     except Exception as ex:
         print('[INFO] Error while working with PostgreSQL', ex)
+        abort(500)
+
+
+def get_url_id(id, connection):
+    try:
+        print('[INFO] Сonnection was successful!')
+        with connection.cursor(
+            cursor_factory=psycopg2.extras.NamedTupleCursor
+        ) as cursor:
+            cursor.execute(
+                '''SELECT id FROM urls WHERE id = %s;''', (id,)
+            )
+            id = cursor.fetchone()
+            connection.commit()
+
+            return id.id
+
+    except Exception as ex:
+        print('[INFO] Error while working with PostgreSQL', ex)
+        abort(500)
