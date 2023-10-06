@@ -22,7 +22,7 @@
           <td>{{ row.id }}</td>
 
           <td>
-            <a href="{{ url_for('get_url_from_id', id=row.id) }}">{{ row.name }}</a>
+            <a href="{{ url_for('get_url', id=row.id) }}">{{ row.name }}</a>
           </td>
 
           {% if row.created_at %}

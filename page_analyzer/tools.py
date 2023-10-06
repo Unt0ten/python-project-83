@@ -1,5 +1,5 @@
 from validators import url as validate_url
-from requests.exceptions import RequestException
+import requests
 
 
 def validate_len(data):
@@ -16,7 +16,10 @@ def normalize_url(url):
     return norm_url
 
 
-def validate_status_code(status_code):
-    if status_code > 399:
-        raise RequestException("Broken URL!")
-    return status_code
+def get_response(url):
+    try:
+        resp = requests.get(url)
+        return resp
+
+    except Exception:
+        return

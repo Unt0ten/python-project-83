@@ -1,7 +1,8 @@
 from bs4 import BeautifulSoup
 
 
-def get_seo(resp):
+def get_page_data(resp):
+    status = resp.status_code
     soup = BeautifulSoup(resp.text, 'lxml')
 
     h1 = soup.h1
@@ -17,4 +18,6 @@ def get_seo(resp):
         if meta.get('name') == 'description':
             description = meta.get('content')
 
-    return h1, title, description
+    return {
+        'status': status, 'h1': h1, 'title': title, 'description': description
+    }
