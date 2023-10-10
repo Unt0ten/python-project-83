@@ -48,6 +48,7 @@ def get_urls():
         return render_template('url/urls.html', data=data)
 
     except Exception as ex:
+        print(f'[INFO] {ex}')
         abort(500, ex)
         db_url.connection_close(conn)
 
@@ -100,6 +101,7 @@ def post_urls():
         return redirect(url_for('get_url', id=url.id), code=302)
 
     except Exception as ex:
+        print(f'[INFO] {ex}')
         abort(500, ex)
         db_url.connection_close(conn)
 
@@ -126,6 +128,7 @@ def get_url(id):
         )
 
     except Exception as ex:
+        print(f'[INFO] {ex}')
         abort(500, ex)
         db_url.connection_close(conn)
 
@@ -148,5 +151,6 @@ def post_url_check(id):
         return redirect(url_for('get_url', id=id), 302)
 
     except Exception as ex:
+        print(f'[INFO] {ex}')
         abort(500, ex)
         db_url.connection_close(conn)

@@ -21,5 +21,6 @@ def get_response(url):
         resp = requests.get(url)
         return resp
 
-    except Exception:
-        return
+    except Exception as ex:
+        print(f'[INFO] {ex}')
+        return None

@@ -1,8 +1,8 @@
 import psycopg2.extras
 
 
-def get_connection(database):
-    connection = psycopg2.connect(database)
+def get_connection(database_url):
+    connection = psycopg2.connect(database_url)
     return connection
 
 
@@ -33,10 +33,10 @@ def get_url_by_id(connection, id):
             cursor.execute(
                 "SELECT name, created_at FROM urls WHERE id = %s;", (id,)
             )
-            data = cursor.fetchone()
+            urls = cursor.fetchone()
             connection.commit()
 
-            return data
+            return urls
 
     except Exception as ex:
         print('[INFO] Error while working with PostgreSQL', ex)
@@ -104,7 +104,7 @@ def get_url_checks(connection, url_id):
 
 
 def get_last_checks(connection):
-    data = []
+    last_checks = []
     try:
         print('[INFO] Сonnection was successful!')
         with connection.cursor(
@@ -128,7 +128,7 @@ def get_last_checks(connection):
         for url in urls:
             for check in checks:
                 if url.id == check.url_id:
-                    data.append(
+                    last_checks.append(
                         {
                             'id': url.id, 'name': url.name,
                             'created_at': check.created_at,
@@ -137,7 +137,7 @@ def get_last_checks(connection):
                     )
                     break
             else:
-                data.append(
+                last_checks.append(
                     {
                         'id': url.id, 'name': url.name,
                         'created_at': None,
@@ -145,7 +145,7 @@ def get_last_checks(connection):
                     }
                 )
         connection.commit()
-        return data
+        return last_checks
 
     except Exception as ex:
         print('[INFO] Error while working with PostgreSQL', ex)
