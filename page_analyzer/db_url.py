@@ -12,12 +12,12 @@ def connection_close(connection):
 
 def add_url(connection, url):
     try:
-        print('[INFO] Сonnection was successful!')
         with connection.cursor() as cursor:
             cursor.execute(
                 'INSERT INTO urls (name) VALUES (%s);', (url,)
             )
             connection.commit()
+            print('[INFO] Adding url was successful!')
 
     except Exception as ex:
         print('[WARNING] Error while adding url:', ex)
@@ -26,7 +26,6 @@ def add_url(connection, url):
 
 def get_url_by_id(connection, id):
     try:
-        print('[INFO] Сonnection was successful!')
         with connection.cursor(
             cursor_factory=psycopg2.extras.NamedTupleCursor
         ) as cursor:
@@ -35,6 +34,7 @@ def get_url_by_id(connection, id):
             )
             urls = cursor.fetchone()
             connection.commit()
+            print('[INFO] Retrieving url by id was successful!')
 
             return urls
 
@@ -45,7 +45,7 @@ def get_url_by_id(connection, id):
 
 def get_url_by_name(connection, name):
     try:
-        print('[INFO] Сonnection was successful!')
+        print('[INFO] Retrieving url by name was successful!')
         with connection.cursor(
             cursor_factory=psycopg2.extras.NamedTupleCursor
         ) as cursor:
@@ -64,7 +64,6 @@ def get_url_by_name(connection, name):
 
 def add_check(connection, id, page_data):
     try:
-        print('[INFO] Сonnection was successful!')
         with connection.cursor() as cursor:
             cursor.execute(
                 '''INSERT INTO url_checks
@@ -76,6 +75,7 @@ def add_check(connection, id, page_data):
                 )
             )
             connection.commit()
+            print('[INFO] Adding check was successful!')
 
     except Exception as ex:
         print('[WARNING] Error while adding check:', ex)
@@ -84,7 +84,6 @@ def add_check(connection, id, page_data):
 
 def get_url_checks(connection, url_id):
     try:
-        print('[INFO] Сonnection was successful!')
         with connection.cursor(
             cursor_factory=psycopg2.extras.NamedTupleCursor
         ) as cursor:
@@ -95,18 +94,18 @@ def get_url_checks(connection, url_id):
             )
             result = cursor.fetchall()
             connection.commit()
+            print('[INFO] Retrieving url checks was successful!')
 
             return result
 
     except Exception as ex:
-        print('[WARNING] Error when getting url checks:', ex)
+        print('[WARNING] Error when retrieving url checks:', ex)
         raise ex
 
 
 def get_last_checks(connection):
     last_checks = []
     try:
-        print('[INFO] Сonnection was successful!')
         with connection.cursor(
             cursor_factory=psycopg2.extras.NamedTupleCursor
         ) as cursor:
@@ -147,8 +146,9 @@ def get_last_checks(connection):
                     }
                 )
         connection.commit()
+        print('[INFO] Retrieving url last checks was successful!')
         return last_checks
 
     except Exception as ex:
-        print('[WARNING] Error when getting url last checks:', ex)
+        print('[WARNING] Error when retrieving url last checks:', ex)
         raise ex
