@@ -45,7 +45,6 @@ def get_url_by_id(connection, id):
 
 def get_url_by_name(connection, name):
     try:
-        print('[INFO] Retrieving url by name was successful!')
         with connection.cursor(
             cursor_factory=psycopg2.extras.NamedTupleCursor
         ) as cursor:
@@ -54,6 +53,7 @@ def get_url_by_name(connection, name):
             )
             url = cursor.fetchone()
             connection.commit()
+            print('[INFO] Retrieving url by name was successful!')
 
             return url
 
