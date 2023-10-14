@@ -3,6 +3,7 @@ import psycopg2.extras
 
 def get_connection(database_url):
     connection = psycopg2.connect(database_url)
+    print('[INFO] Сonnection was successful!')
     return connection
 
 
