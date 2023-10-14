@@ -8,6 +8,7 @@ def get_connection(database_url):
 
 
 def connection_close(connection):
+    print('[INFO] Connection was closed!')
     connection.close()
 
 

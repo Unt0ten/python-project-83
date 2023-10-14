@@ -23,13 +23,13 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 
 @app.errorhandler(404)
 def not_found(error):
-    print('[WARNING]', error)
+    print('[WARNING] Page not found!')
     return render_template('errors/error_404.html'), 404
 
 
 @app.errorhandler(500)
 def server_error(error):
-    print('[WARNING] Internal Server Error', error)
+    print('[WARNING] Internal Server Error:', error)
     return render_template('errors/error_500.html', error=error), 500
 
 
@@ -50,7 +50,6 @@ def get_urls():
         abort(500, ex)
 
     finally:
-        print('[INFO] "get_urls" Connection closed!')
         db_url.connection_close(conn)
 
 
@@ -88,7 +87,6 @@ def post_urls():
         abort(500, ex)
 
     finally:
-        print('[INFO] "post_urls" connection closed!')
         db_url.connection_close(conn)
 
 
@@ -98,7 +96,7 @@ def get_url(id):
     try:
         searched_id = db_url.get_url_by_id(conn, id)
         if not searched_id:
-            abort(404)
+            return not_found(404)
 
         messages = get_flashed_messages(with_categories=True)
         info_url = db_url.get_url_by_id(conn, id)
@@ -115,7 +113,6 @@ def get_url(id):
         abort(500, ex)
 
     finally:
-        print('[INFO] "get_url" сonnection closed!')
         db_url.connection_close(conn)
 
 
@@ -138,5 +135,4 @@ def post_url_check(id):
         abort(500, ex)
 
     finally:
-        print('[INFO] "post_url_check" сonnection closed!')
         db_url.connection_close(conn)
