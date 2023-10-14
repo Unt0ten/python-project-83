@@ -47,7 +47,6 @@ def get_urls():
         return render_template('url/urls.html', data=data)
 
     except Exception as ex:
-        print(f'[WARNING] {ex}')
         abort(500, ex)
 
     finally:
