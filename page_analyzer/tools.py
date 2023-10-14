@@ -1,4 +1,5 @@
 from validators import url as validate_url
+from urllib.parse import urlparse
 import requests
 
 
@@ -24,3 +25,19 @@ def get_response(url):
     except Exception as ex:
         print(f'[INFO] {ex}')
         return None
+
+
+def check_url_errors(url):
+    if not url:
+        messages = 'URL обязателен', 'warning'
+        return messages
+
+    norm_url = normalize_url(urlparse(url))
+
+    if not norm_url:
+        messages = 'Некорректный URL', 'warning'
+        return messages
+
+    if validate_len(url):
+        messages = 'URL превышает 255 символов', 'warning'
+        return messages

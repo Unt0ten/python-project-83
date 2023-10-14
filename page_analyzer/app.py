@@ -23,13 +23,13 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 
 @app.errorhandler(404)
 def not_found(error):
-    print('[INFO]', error)
+    print('[WARNING]', error)
     return render_template('errors/error_404.html'), 404
 
 
 @app.errorhandler(500)
 def server_error(error):
-    print('[INFO] Internal Server Error', error)
+    print('[WARNING] Internal Server Error', error)
     return render_template('errors/error_500.html', error=error), 500
 
 
@@ -44,12 +44,14 @@ def get_urls():
     conn = db_url.get_connection(DATABASE_URL)
     try:
         data = db_url.get_last_checks(conn)
-        db_url.connection_close(conn)
         return render_template('url/urls.html', data=data)
 
     except Exception as ex:
-        print(f'[INFO] {ex}')
+        print(f'[WARNING] {ex}')
         abort(500, ex)
+
+    finally:
+        print('[INFO] "get_urls" Connection closed!')
         db_url.connection_close(conn)
 
 
@@ -57,35 +59,19 @@ def get_urls():
 def post_urls():
     conn = db_url.get_connection(DATABASE_URL)
     try:
-        data = request.form.get('url')
-        if not data:
-            flash('URL обязателен', 'warning')
+        url = request.form.get('url')
+        error = tools.check_url_errors(url)
+
+        if error:
+            flash(*error)
             messages = get_flashed_messages(with_categories=True)
-            db_url.connection_close(conn)
             return render_template('index.html', messages=messages), 422
 
-        url = urlparse(data)
-        norm_url = tools.normalize_url(url)
-
-        if not norm_url:
-            flash('Некорректный URL', 'warning')
-            messages = get_flashed_messages(with_categories=True)
-            db_url.connection_close(conn)
-            return render_template('index.html', messages=messages), 422
-
-        errors = tools.validate_len(data)
-
-        if errors:
-            flash('URL превышает 255 символов', 'warning')
-            messages = get_flashed_messages(with_categories=True)
-            db_url.connection_close(conn)
-            return render_template('index.html', messages=messages), 422
-
+        norm_url = tools.normalize_url(urlparse(url))
         found_url = db_url.get_url_by_name(conn, norm_url)
 
         if found_url:
             flash('Страница уже существует', 'success')
-            db_url.connection_close(conn)
             return redirect(
                 url_for(
                     'get_url',
@@ -96,13 +82,14 @@ def post_urls():
         db_url.add_url(conn, norm_url)
         flash('Страница успешно добавлена', 'success')
         url = db_url.get_url_by_name(conn, norm_url)
-        db_url.connection_close(conn)
 
         return redirect(url_for('get_url', id=url.id), code=302)
 
     except Exception as ex:
-        print(f'[INFO] {ex}')
         abort(500, ex)
+
+    finally:
+        print('[INFO] "post_urls" connection closed!')
         db_url.connection_close(conn)
 
 
@@ -112,13 +99,11 @@ def get_url(id):
     try:
         searched_id = db_url.get_url_by_id(conn, id)
         if not searched_id:
-            db_url.connection_close(conn)
             abort(404)
 
         messages = get_flashed_messages(with_categories=True)
         info_url = db_url.get_url_by_id(conn, id)
         checks = db_url.get_url_checks(conn, id)
-        db_url.connection_close(conn)
         return render_template(
             'url/url.html',
             id=id,
@@ -128,8 +113,10 @@ def get_url(id):
         )
 
     except Exception as ex:
-        print(f'[INFO] {ex}')
         abort(500, ex)
+
+    finally:
+        print('[INFO] "get_url" сonnection closed!')
         db_url.connection_close(conn)
 
 
@@ -141,16 +128,16 @@ def post_url_check(id):
         resp = tools.get_response(url.name)
         if not resp:
             flash('Произошла ошибка при проверке', 'warning')
-            db_url.connection_close(conn)
             return redirect(url_for('get_url', id=id), 302)
 
         page_data = get_page_data(resp)
         db_url.add_check(conn, id, page_data)
         flash('Страница успешно проверена', 'success')
-        db_url.connection_close(conn)
         return redirect(url_for('get_url', id=id), 302)
 
     except Exception as ex:
-        print(f'[INFO] {ex}')
         abort(500, ex)
+
+    finally:
+        print('[INFO] "post_url_check" сonnection closed!')
         db_url.connection_close(conn)

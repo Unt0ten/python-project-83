@@ -15,12 +15,12 @@ def add_url(connection, url):
         print('[INFO] Сonnection was successful!')
         with connection.cursor() as cursor:
             cursor.execute(
-                "INSERT INTO urls (name) VALUES (%s);", (url,)
+                'INSERT INTO urls (name) VALUES (%s);', (url,)
             )
             connection.commit()
 
     except Exception as ex:
-        print('[INFO] Error while working with PostgreSQL', ex)
+        print('[WARNING] Error while adding url:', ex)
         raise ex
 
 
@@ -31,7 +31,7 @@ def get_url_by_id(connection, id):
             cursor_factory=psycopg2.extras.NamedTupleCursor
         ) as cursor:
             cursor.execute(
-                "SELECT name, created_at FROM urls WHERE id = %s;", (id,)
+                'SELECT name, created_at FROM urls WHERE id = %s;', (id,)
             )
             urls = cursor.fetchone()
             connection.commit()
@@ -39,7 +39,7 @@ def get_url_by_id(connection, id):
             return urls
 
     except Exception as ex:
-        print('[INFO] Error while working with PostgreSQL', ex)
+        print('[WARNING] Error when getting url by id:', ex)
         raise ex
 
 
@@ -50,7 +50,7 @@ def get_url_by_name(connection, name):
             cursor_factory=psycopg2.extras.NamedTupleCursor
         ) as cursor:
             cursor.execute(
-                "SELECT * FROM urls WHERE name = %s;", (name,)
+                'SELECT * FROM urls WHERE name = %s;', (name,)
             )
             url = cursor.fetchone()
             connection.commit()
@@ -58,7 +58,7 @@ def get_url_by_name(connection, name):
             return url
 
     except Exception as ex:
-        print('[INFO] Error while working with PostgreSQL', ex)
+        print('[WARNING] Error when getting url by name:', ex)
         raise ex
 
 
@@ -78,7 +78,7 @@ def add_check(connection, id, page_data):
             connection.commit()
 
     except Exception as ex:
-        print('[INFO] Error while working with PostgreSQL', ex)
+        print('[WARNING] Error while adding check:', ex)
         raise ex
 
 
@@ -99,7 +99,7 @@ def get_url_checks(connection, url_id):
             return result
 
     except Exception as ex:
-        print('[INFO] Error while working with PostgreSQL', ex)
+        print('[WARNING] Error when getting url checks:', ex)
         raise ex
 
 
@@ -111,7 +111,7 @@ def get_last_checks(connection):
             cursor_factory=psycopg2.extras.NamedTupleCursor
         ) as cursor:
             cursor.execute(
-                """SELECT id, name FROM urls ORDER BY id DESC;"""
+                'SELECT id, name FROM urls ORDER BY id DESC;'
             )
             urls = cursor.fetchall()
 
@@ -119,9 +119,9 @@ def get_last_checks(connection):
             cursor_factory=psycopg2.extras.NamedTupleCursor
         ) as cursor:
             cursor.execute(
-                """SELECT DISTINCT ON (url_id) url_id, status_code, created_at
+                '''SELECT DISTINCT ON (url_id) url_id, status_code, created_at
                 FROM url_checks
-                ORDER BY url_id DESC, created_at DESC;"""
+                ORDER BY url_id DESC, created_at DESC;'''
             )
             checks = cursor.fetchall()
 
@@ -130,7 +130,8 @@ def get_last_checks(connection):
                 if url.id == check.url_id:
                     last_checks.append(
                         {
-                            'id': url.id, 'name': url.name,
+                            'id': url.id,
+                            'name': url.name,
                             'created_at': check.created_at,
                             'status_code': check.status_code
                         }
@@ -139,7 +140,8 @@ def get_last_checks(connection):
             else:
                 last_checks.append(
                     {
-                        'id': url.id, 'name': url.name,
+                        'id': url.id,
+                        'name': url.name,
                         'created_at': None,
                         'status_code': None
                     }
@@ -148,5 +150,5 @@ def get_last_checks(connection):
         return last_checks
 
     except Exception as ex:
-        print('[INFO] Error while working with PostgreSQL', ex)
+        print('[WARNING] Error when getting url last checks:', ex)
         raise ex

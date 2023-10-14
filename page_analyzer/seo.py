@@ -19,5 +19,8 @@ def get_page_data(resp):
             description = meta.get('content')
 
     return {
-        'status': status, 'h1': h1, 'title': title, 'description': description
+        'status': status,
+        'h1': h1,
+        'title': title,
+        'description': description
     }
